@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NorskSti — διαδραστική εκμάθηση νορβηγικών για επίπεδα A2, B1 και B2.">
+  <title>NorskSti — Νορβηγικά A2–B2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,650;9..144,750&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #17241f;
+      --muted: #68746f;
+      --paper: #f5f1e8;
+      --card: #fffdf8;
+      --forest: #1f5945;
+      --forest-2: #39745e;
+      --fjord: #1f6f8b;
+      --sun: #ecb84b;
+      --red: #c8524b;
+      --line: #d9ddd7;
+      --shadow: 0 18px 50px rgba(32, 54, 46, .11);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(236, 184, 75, .18), transparent 24rem),
+        radial-gradient(circle at 94% 18%, rgba(31, 111, 139, .14), transparent 30rem),
+        var(--paper);
+      font-family: "DM Sans", system-ui, sans-serif;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+
+    header {
+      position: sticky; top: 0; z-index: 20;
+      border-bottom: 1px solid rgba(31, 89, 69, .12);
+      background: rgba(245, 241, 232, .82);
+      backdrop-filter: blur(18px);
+    }
+    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark {
+      display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px;
+      color: white; background: var(--forest); box-shadow: 0 8px 20px rgba(31, 89, 69, .2);
+    }
+    .brand-mark svg { width: 24px; }
+    .nav-links { display: flex; gap: 6px; }
+    .nav-links button {
+      padding: 9px 13px; border: 0; border-radius: 12px; color: var(--muted); background: transparent;
+    }
+    .nav-links button:hover, .nav-links button.active { color: var(--forest); background: rgba(31, 89, 69, .09); }
+    .profile { display: flex; align-items: center; gap: 9px; }
+    .profile-badge { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: white; background: var(--fjord); font-weight: 700; }
+
+    main { padding: 46px 0 72px; }
+    .view { display: none; }
+    .view.active { display: block; animation: rise .35s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(7px); } }
+
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px; color: var(--forest); font-size: .78rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--sun); }
+    h1, h2, h3 { margin-top: 0; }
+    h1, h2 { font-family: "Fraunces", Georgia, serif; letter-spacing: -.04em; }
+    h1 { max-width: 700px; margin-bottom: 16px; font-size: clamp(2.55rem, 6vw, 5.1rem); line-height: .98; }
+    h2 { margin-bottom: 12px; font-size: clamp(1.9rem, 4vw, 3rem); line-height: 1.08; }
+    .lead { max-width: 660px; color: var(--muted); font-size: 1.08rem; line-height: 1.7; }
+
+    .hero { display: grid; grid-template-columns: 1.35fr .65fr; gap: 34px; align-items: end; padding: 38px 0 44px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 28px; }
+    .btn { border: 0; border-radius: 14px; padding: 13px 18px; font-weight: 700; transition: .2s ease; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { color: white; background: var(--forest); box-shadow: 0 10px 24px rgba(31, 89, 69, .2); }
+    .btn-soft { color: var(--forest); background: rgba(31, 89, 69, .09); }
+    .btn-small { padding: 10px 13px; border-radius: 12px; font-size: .9rem; }
+
+    .hero-card { position: relative; min-height: 285px; overflow: hidden; border-radius: 34px; padding: 28px; color: white; background: var(--forest); box-shadow: var(--shadow); }
+    .hero-card::before {
+      content: ""; position: absolute; inset: auto -30px -86px auto; width: 240px; height: 240px; border-radius: 50%;
+      border: 42px solid rgba(255,255,255,.10);
+    }
+    .mountain { position: absolute; right: -18px; bottom: -6px; width: 96%; opacity: .28; }
+    .hero-card > *:not(.mountain) { position: relative; z-index: 1; }
+    .mini-label { opacity: .72; font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .streak { margin: 12px 0 8px; font-family: "Fraunces", serif; font-size: 3.65rem; line-height: 1; }
+    .streak span { color: var(--sun); }
+    .hero-card p { max-width: 230px; margin: 0; opacity: .8; line-height: 1.55; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 42px; }
+    .stat { display: flex; align-items: center; gap: 16px; min-height: 98px; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,253,248,.68); }
+    .stat-icon { display: grid; place-items: center; flex: 0 0 45px; width: 45px; height: 45px; border-radius: 14px; color: var(--forest); background: rgba(31, 89, 69, .1); font-size: 1.2rem; }
+    .stat strong { display: block; font-size: 1.35rem; }
+    .stat span { color: var(--muted); font-size: .88rem; }
+
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin: 34px 0 20px; }
+    .section-head p { margin: 0; color: var(--muted); }
+    .level-tabs { display: flex; gap: 8px; padding: 5px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.55); }
+    .level-tabs button { min-width: 58px; padding: 9px 14px; border: 0; border-radius: 11px; color: var(--muted); background: transparent; font-weight: 800; }
+    .level-tabs button.active { color: white; background: var(--forest); }
+
+    .lesson-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .lesson-card { position: relative; display: flex; flex-direction: column; min-height: 260px; padding: 24px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: 0 7px 22px rgba(33, 52, 45, .04); transition: .2s ease; }
+    .lesson-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .lesson-card.locked { opacity: .66; }
+    .lesson-card .number { position: absolute; right: 17px; top: 8px; color: rgba(31,89,69,.07); font-family: "Fraunces", serif; font-size: 5.8rem; font-weight: 750; line-height: 1; }
+    .tag { align-self: flex-start; padding: 6px 9px; border-radius: 9px; color: var(--fjord); background: rgba(31,111,139,.1); font-size: .74rem; font-weight: 800; }
+    .lesson-card h3 { position: relative; z-index: 1; margin: 28px 0 8px; font-size: 1.25rem; }
+    .lesson-card p { position: relative; z-index: 1; margin: 0 0 24px; color: var(--muted); line-height: 1.55; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; }
+    .duration { color: var(--muted); font-size: .84rem; }
+    .complete-mark { color: var(--forest); font-weight: 800; }
+
+    .progress-track { width: 100%; height: 8px; overflow: hidden; border-radius: 99px; background: #e4e7e2; }
+    .progress-track > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--forest), #65a883); transition: width .5s ease; }
+
+    .course-layout { display: grid; grid-template-columns: 290px 1fr; gap: 24px; align-items: start; }
+    .course-side { position: sticky; top: 100px; padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+    .side-levels { display: grid; gap: 8px; margin-bottom: 22px; }
+    .side-levels button { display: flex; justify-content: space-between; width: 100%; padding: 13px 14px; border: 0; border-radius: 13px; color: var(--muted); background: transparent; text-align: left; font-weight: 700; }
+    .side-levels button.active { color: white; background: var(--forest); }
+    .side-progress { padding: 15px; border-radius: 15px; background: var(--paper); }
+    .side-progress p { display: flex; justify-content: space-between; margin: 0 0 9px; font-size: .83rem; }
+    .module-list { display: grid; gap: 14px; }
+    .module { display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: center; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: var(--card); }
+    .module-num { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; color: var(--forest); background: rgba(31,89,69,.09); font-family: "Fraunces", serif; font-size: 1.25rem; font-weight: 750; }
+    .module h3 { margin: 0 0 5px; font-size: 1.02rem; }
+    .module p { margin: 0; color: var(--muted); font-size: .88rem; }
+    .module-state { white-space: nowrap; }
+
+    .practice-shell { max-width: 820px; margin: 0 auto; }
+    .practice-head { text-align: center; margin-bottom: 26px; }
+    .quiz { overflow: hidden; border: 1px solid var(--line); border-radius: 28px; background: var(--card); box-shadow: var(--shadow); }
+    .quiz-top { display: flex; justify-content: space-between; gap: 20px; padding: 20px 24px; border-bottom: 1px solid var(--line); }
+    .quiz-top span { color: var(--muted); font-size: .86rem; }
+    .quiz-progress { width: 170px; }
+    .quiz-body { padding: clamp(24px, 5vw, 46px); }
+    .quiz-prompt { margin: 0 0 10px; color: var(--muted); font-weight: 600; }
+    .quiz-question { margin: 0 0 28px; font-family: "Fraunces", serif; font-size: clamp(1.65rem, 4vw, 2.4rem); line-height: 1.2; }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .option { position: relative; padding: 16px 18px; border: 1.5px solid var(--line); border-radius: 15px; color: var(--ink); background: white; text-align: left; font-weight: 650; }
+    .option:hover { border-color: var(--forest-2); }
+    .option.selected { border-color: var(--fjord); background: rgba(31,111,139,.08); }
+    .option.correct { border-color: #4b8d6e; background: rgba(75,141,110,.12); }
+    .option.wrong { border-color: var(--red); background: rgba(200,82,75,.1); }
+    .feedback { min-height: 58px; margin-top: 20px; padding: 15px 17px; border-radius: 14px; color: var(--muted); background: var(--paper); line-height: 1.5; }
+    .feedback strong { color: var(--ink); }
+    .quiz-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+    .vocab-toolbar { display: flex; gap: 12px; margin: 20px 0; }
+    .search { flex: 1; padding: 13px 15px; border: 1px solid var(--line); border-radius: 14px; color: var(--ink); background: var(--card); outline: none; }
+    .search:focus { border-color: var(--forest-2); box-shadow: 0 0 0 3px rgba(31,89,69,.1); }
+    .vocab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .word { padding: 20px; border: 1px solid var(--line); border-radius: 19px; background: var(--card); }
+    .word small { color: var(--fjord); font-weight: 800; }
+    .word h3 { margin: 12px 0 5px; font-family: "Fraunces", serif; font-size: 1.5rem; }
+    .word p { margin: 0; color: var(--muted); }
+    .word .example { margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--line); font-size: .86rem; font-style: italic; }
+    .empty { grid-column: 1 / -1; padding: 42px; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted); text-align: center; }
+
+    .toast { position: fixed; right: 22px; bottom: 22px; z-index: 50; max-width: 330px; padding: 15px 18px; border-radius: 15px; color: white; background: var(--ink); box-shadow: var(--shadow); transform: translateY(120px); opacity: 0; transition: .3s ease; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-card { min-height: 235px; }
+      .lesson-grid, .vocab-grid { grid-template-columns: 1fr 1fr; }
+      .course-layout { grid-template-columns: 1fr; }
+      .course-side { position: static; }
+    }
+    @media (max-width: 650px) {
+      .shell { width: min(100% - 22px, 1180px); }
+      .nav { min-height: 66px; }
+      .brand-name, .profile span { display: none; }
+      .nav-links button { padding: 9px; font-size: .82rem; }
+      main { padding-top: 22px; }
+      .hero { padding-top: 18px; }
+      .stats, .lesson-grid, .vocab-grid, .options { grid-template-columns: 1fr; }
+      .section-head { align-items: start; flex-direction: column; }
+      .level-tabs { width: 100%; }
+      .level-tabs button { flex: 1; }
+      .module { grid-template-columns: 48px 1fr; }
+      .module-state { grid-column: 2; }
+      .quiz-top { align-items: start; flex-direction: column; }
+      .quiz-progress { width: 100%; }
+      .vocab-toolbar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell nav">
+      <div class="brand" aria-label="NorskSti αρχική">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 18 9.4 8l3.1 4.5L15 9l6 9H3Z"/><path d="M7.2 18 12 12.5 16.2 18"/></svg>
+        </span>
+        <span class="brand-name">NorskSti</span>
+      </div>
+      <nav class="nav-links" aria-label="Κύρια πλοήγηση">
+        <button class="active" data-view="home">Αρχική</button>
+        <button data-view="courses">Μαθήματα</button>
+        <button data-view="practice">Εξάσκηση</button>
+        <button data-view="vocabulary">Λεξιλόγιο</button>
+      </nav>
+      <div class="profile"><span>Hei!</span><div class="profile-badge">N</div></div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="home" class="view active">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">Η διαδρομή σου προς τον Βορρά</p>
+          <h1>Μίλα νορβηγικά με σιγουριά.</h1>
+          <p class="lead">Σύντομα μαθήματα, πρακτικές φράσεις και στοχευμένη εξάσκηση από το A2 έως το B2 — σχεδιασμένα για ελληνόφωνους μαθητές.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" data-go="courses">Συνέχισε το μάθημα →</button>
+            <button class="btn btn-soft" data-go="practice">Γρήγορη εξάσκηση</button>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="Συνεχόμενες ημέρες μελέτης">
+          <p class="mini-label">Η συνέπειά σου</p>
+          <div class="streak"><span>●</span> <b id="streakCount">1</b></div>
+          <p>ημέρα στη σειρά. Λίγα νορβηγικά σήμερα, μεγάλη πρόοδος αύριο.</p>
+          <svg class="mountain" viewBox="0 0 500 190" aria-hidden="true"><path fill="currentColor" d="M0 190V154L104 65l44 50 72-96 84 106 45-45 151 110H0Z"/><path fill="none" stroke="currentColor" stroke-width="5" d="m84 82 20-17 44 50 72-96 84 106 45-45 55 40"/></svg>
+        </aside>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="stat-icon">✓</div><div><strong id="doneStat">0</strong><span>μαθήματα ολοκληρώθηκαν</span></div></div>
+        <div class="stat"><div class="stat-icon">◫</div><div><strong id="wordStat">18</strong><span>λέξεις διαθέσιμες</span></div></div>
+        <div class="stat"><div class="stat-icon">◆</div><div><strong id="scoreStat">—</strong><span>καλύτερο σκορ εξάσκησης</span></div></div>
+      </div>
+
+      <div class="section-head">
+        <div><p class="eyebrow">Διάλεξε επίπεδο</p><h2>Η επόμενη στάση σου</h2></div>
+        <div class="level-tabs" data-level-tabs>
+          <button class="active" data-level="A2">A2</button><button data-level="B1">B1</button><button data-level="B2">B2</button>
+        </div>
+      </div>
+      <div id="featuredLessons" class="lesson-grid"></div>
+    </section>
+
+    <section id="courses" class="view">
+      <div class="section-head">
+        <div><p class="eyebrow">Οργανωμένη πορεία</p><h2>Όλα τα μαθήματα</h2><p>Προχώρα με τον ρυθμό σου και σημείωσε όσα ολοκλήρωσες.</p></div>
+      </div>
+      <div class="course-layout">
+        <aside class="course-side">
+          <div id="sideLevels" class="side-levels"></div>
+          <div class="side-progress"><p><span>Πρόοδος επιπέδου</span><b id="levelProgressText">0%</b></p><div class="progress-track"><span id="levelProgressBar" style="width:0%"></span></div></div>
+        </aside>
+        <div><div id="courseIntro"></div><div id="moduleList" class="module-list"></div></div>
+      </div>
+    </section>
+
+    <section id="practice" class="view">
+      <div class="practice-shell">
+        <div class="practice-head"><p class="eyebrow">5 ερωτήσεις</p><h2>Γρήγορη εξάσκηση</h2><p class="lead">Έλεγξε λεξιλόγιο, γραμματική και καθημερινές εκφράσεις.</p></div>
+        <div class="quiz">
+          <div class="quiz-top"><span id="quizCounter">Ερώτηση 1 από 5</span><div class="quiz-progress progress-track"><span id="quizProgress" style="width:20%"></span></div></div>
+          <div class="quiz-body" id="quizBody"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="vocabulary" class="view">
+      <div class="section-head"><div><p class="eyebrow">Ord for ord</p><h2>Χρήσιμο λεξιλόγιο</h2><p>Αναζήτησε νορβηγικές ή ελληνικές λέξεις και δες τες μέσα σε πρόταση.</p></div></div>
+      <div class="vocab-toolbar">
+        <input id="wordSearch" class="search" type="search" placeholder="Αναζήτησε λέξη…" aria-label="Αναζήτηση λεξιλογίου">
+        <div class="level-tabs" id="vocabLevels"><button class="active" data-vocab-level="all">Όλα</button><button data-vocab-level="A2">A2</button><button data-vocab-level="B1">B1</button><button data-vocab-level="B2">B2</button></div>
+      </div>
+      <div id="vocabGrid" class="vocab-grid"></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const courseData = {
+      A2: {
+        title: 'Βάσεις για την καθημερινότητα',
+        description: 'Επικοινώνησε σε συνηθισμένες καταστάσεις με απλές, σαφείς προτάσεις.',
+        modules: [
+          { title: 'På kafé', greek: 'Στο καφέ', topic: 'Λεξιλόγιο & διάλογος', minutes: 12 },
+          { title: 'En vanlig dag', greek: 'Μια συνηθισμένη μέρα', topic: 'Ενεστώτας & χρόνος', minutes: 15 },
+          { title: 'Veien gjennom byen', greek: 'Ο δρόμος μέσα στην πόλη', topic: 'Οδηγίες & προθέσεις', minutes: 14 },
+          { title: 'Familie og venner', greek: 'Οικογένεια και φίλοι', topic: 'Κτητικές αντωνυμίες', minutes: 16 },
+          { title: 'Hva skjedde i går?', greek: 'Τι έγινε χθες;', topic: 'Απλός παρελθόντας', minutes: 18 },
+          { title: 'Planer for helgen', greek: 'Σχέδια για το Σαββατοκύριακο', topic: 'Μέλλοντας & προθέσεις', minutes: 14 }
+        ]
+      },
+      B1: {
+        title: 'Ανεξάρτητη επικοινωνία',
+        description: 'Ανάπτυξε τη σκέψη σου, αφηγήσου εμπειρίες και χειρίσου πραγματικές συζητήσεις.',
+        modules: [
+          { title: 'Et nytt arbeidsliv', greek: 'Μια νέα επαγγελματική ζωή', topic: 'Εργασία & συνεντεύξεις', minutes: 20 },
+          { title: 'Å uttrykke meninger', greek: 'Έκφραση απόψεων', topic: 'Σύνδεσμοι & επιχειρήματα', minutes: 18 },
+          { title: 'Norsk natur', greek: 'Νορβηγική φύση', topic: 'Περιγραφή & επίθετα', minutes: 17 },
+          { title: 'Nyheter og medier', greek: 'Ειδήσεις και μέσα', topic: 'Αναφορά λόγου', minutes: 22 },
+          { title: 'Helse og vaner', greek: 'Υγεία και συνήθειες', topic: 'Συμβουλές & υποθετικός λόγος', minutes: 19 },
+          { title: 'Kulturmøter', greek: 'Πολιτισμικές συναντήσεις', topic: 'Αφήγηση & σύγκριση', minutes: 21 }
+        ]
+      },
+      B2: {
+        title: 'Άνεση και ακρίβεια',
+        description: 'Συζήτησε σύνθετα θέματα με αποχρώσεις, φυσική ροή και πλουσιότερο λεξιλόγιο.',
+        modules: [
+          { title: 'Samfunn og tillit', greek: 'Κοινωνία και εμπιστοσύνη', topic: 'Αφηρημένο λεξιλόγιο', minutes: 24 },
+          { title: 'Å bygge et argument', greek: 'Δόμηση επιχειρήματος', topic: 'Συνοχή & έμφαση', minutes: 23 },
+          { title: 'Bærekraftige valg', greek: 'Βιώσιμες επιλογές', topic: 'Περιβάλλον & πολιτική', minutes: 25 },
+          { title: 'Språk i endring', greek: 'Η γλώσσα που αλλάζει', topic: 'Ύφος & γλωσσικές ποικιλίες', minutes: 22 },
+          { title: 'Arbeid og teknologi', greek: 'Εργασία και τεχνολογία', topic: 'Σύνθετες δομές', minutes: 25 },
+          { title: 'Nyanser i samtalen', greek: 'Αποχρώσεις στη συζήτηση', topic: 'Ιδιωματισμοί & πραγματολογία', minutes: 26 }
+        ]
+      }
+    };
+
+    const vocabulary = [
+      ['A2','hverdag','καθημερινότητα','Hverdagen min starter tidlig.'], ['A2','å bestille','παραγγέλνω','Jeg vil gjerne bestille en kaffe.'],
+      ['A2','nær','κοντά','Butikken ligger nær stasjonen.'], ['A2','vanligvis','συνήθως','Jeg går vanligvis på jobb.'],
+      ['A2','å trenge','χρειάζομαι','Jeg trenger litt hjelp.'], ['A2','hyggelig','ευχάριστος / συμπαθητικός','Det var hyggelig å møte deg.'],
+      ['B1','erfaring','εμπειρία','Denne erfaringen lærte meg mye.'], ['B1','å foreslå','προτείνω','Jeg foreslår at vi møtes senere.'],
+      ['B1','fordel','πλεονέκτημα','En stor fordel er fleksibiliteten.'], ['B1','likevel','παρ’ όλα αυτά','Det regnet, men vi gikk ut likevel.'],
+      ['B1','å påvirke','επηρεάζω','Valgene våre påvirker miljøet.'], ['B1','sammenheng','σύνδεση / συνοχή','Jeg forstår ikke sammenhengen.'],
+      ['B2','forutsetning','προϋπόθεση','Tillit er en viktig forutsetning.'], ['B2','å nyansere','δίνω αποχρώσεις','Hun nyanserte argumentet sitt.'],
+      ['B2','hensiktsmessig','κατάλληλος / σκόπιμος','Dette er en hensiktsmessig løsning.'], ['B2','derimot','αντιθέτως','Han var rolig; hun, derimot, var spent.'],
+      ['B2','bærekraftig','βιώσιμος','Vi trenger en mer bærekraftig modell.'], ['B2','å hevde','ισχυρίζομαι','Forskeren hevder at tiltaket virker.']
+    ].map(([level, norwegian, greek, example]) => ({ level, norwegian, greek, example }));
+
+    const questions = [
+      { level:'A2', prompt:'Διάλεξε τη σωστή μετάφραση:', q:'Jeg trenger hjelp.', options:['Χρειάζομαι βοήθεια.','Προσφέρω βοήθεια.','Βρήκα τη βοήθεια.','Περιμένω βοήθεια.'], answer:0, note:'trenger = χρειάζομαι' },
+      { level:'A2', prompt:'Συμπλήρωσε την πρόταση:', q:'I går ___ jeg på kafé.', options:['går','gikk','skal gå','gå'], answer:1, note:'Το «i går» απαιτεί παρελθόντα: gikk.' },
+      { level:'B1', prompt:'Ποιος σύνδεσμος ταιριάζει;', q:'Det regnet. Vi dro på tur ___.', options:['fordi','derfor','likevel','mens'], answer:2, note:'likevel = παρ’ όλα αυτά' },
+      { level:'B1', prompt:'Διάλεξε τη φυσικότερη φράση:', q:'Πώς προτείνεις ευγενικά μια συνάντηση;', options:['Du møter meg.','Jeg foreslår at vi møtes.','Du skal møte.','Vi møtte kanskje.'], answer:1, note:'«Jeg foreslår at …» εισάγει μια ευγενική πρόταση.' },
+      { level:'B2', prompt:'Διάλεξε τη σωστή απόχρωση:', q:'Forslaget virker godt. Det krever ___ flere ressurser.', options:['dessuten','derimot','likevel','dermed'], answer:0, note:'dessuten = επιπλέον, προσθέτει ένα ακόμη στοιχείο.' }
+    ];
+
+    const storeKey = 'norsksti-progress-v1';
+    const today = new Date().toISOString().slice(0,10);
+    let state = JSON.parse(localStorage.getItem(storeKey) || 'null') || { completed: [], bestScore: null, lastVisit: today, streak: 1 };
+    if (state.lastVisit !== today) {
+      const gap = Math.round((new Date(today) - new Date(state.lastVisit)) / 86400000);
+      state.streak = gap === 1 ? (state.streak || 1) + 1 : 1;
+      state.lastVisit = today;
+      save();
+    }
+    let currentLevel = 'A2';
+    let quizIndex = 0, quizScore = 0, answered = false;
+    let vocabLevel = 'all';
+
+    function save() { localStorage.setItem(storeKey, JSON.stringify(state)); }
+    function showToast(message) {
+      const el = document.getElementById('toast'); el.textContent = message; el.classList.add('show');
+      clearTimeout(showToast.timer); showToast.timer = setTimeout(() => el.classList.remove('show'), 2600);
+    }
+    function setView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id));
+      document.querySelectorAll('.nav-links button').forEach(b => b.classList.toggle('active', b.dataset.view === id));
+      if (id === 'practice') resetQuiz();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+    document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => setView(b.dataset.go)));
+
+    function lessonKey(level, index) { return `${level}-${index}`; }
+    function isDone(level, index) { return state.completed.includes(lessonKey(level,index)); }
+    function updateStats() {
+      document.getElementById('doneStat').textContent = state.completed.length;
+      document.getElementById('scoreStat').textContent = state.bestScore === null ? '—' : `${state.bestScore}%`;
+      document.getElementById('streakCount').textContent = state.streak || 1;
+    }
+
+    function renderFeatured(level) {
+      const el = document.getElementById('featuredLessons');
+      el.innerHTML = courseData[level].modules.slice(0,3).map((m,i) => `
+        <article class="lesson-card">
+          <span class="number">${i+1}</span><span class="tag">${m.topic}</span>
+          <h3>${m.title}</h3><p>${m.greek}</p>
+          <div class="card-footer"><span class="duration">◷ ${m.minutes} λεπτά</span><button class="btn btn-small ${isDone(level,i) ? 'btn-soft' : 'btn-primary'}" data-featured="${level}-${i}">${isDone(level,i) ? '✓ Έτοιμο' : 'Άνοιγμα'}</button></div>
+        </article>`).join('');
+      el.querySelectorAll('[data-featured]').forEach(b => b.addEventListener('click', () => { currentLevel = b.dataset.featured.split('-')[0]; renderCourses(); setView('courses'); }));
+    }
+    document.querySelectorAll('[data-level-tabs] button').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('[data-level-tabs] button').forEach(x => x.classList.toggle('active', x === b)); renderFeatured(b.dataset.level);
+    }));
+
+    function renderCourses() {
+      const side = document.getElementById('sideLevels');
+      side.innerHTML = Object.keys(courseData).map(l => `<button class="${l === currentLevel ? 'active' : ''}" data-side-level="${l}"><span>${l}</span><span>${courseData[l].modules.length} μαθήματα</span></button>`).join('');
+      side.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { currentLevel = b.dataset.sideLevel; renderCourses(); }));
+      const d = courseData[currentLevel];
+      document.getElementById('courseIntro').innerHTML = `<p class="eyebrow">Επίπεδο ${currentLevel}</p><h2>${d.title}</h2><p class="lead" style="margin-bottom:24px">${d.description}</p>`;
+      document.getElementById('moduleList').innerHTML = d.modules.map((m,i) => `
+        <article class="module"><div class="module-num">${String(i+1).padStart(2,'0')}</div><div><h3>${m.title} · ${m.greek}</h3><p>${m.topic} · ${m.minutes} λεπτά</p></div>
+        <div class="module-state"><button class="btn btn-small ${isDone(currentLevel,i) ? 'btn-soft' : 'btn-primary'}" data-complete="${i}">${isDone(currentLevel,i) ? '✓ Ολοκληρώθηκε' : 'Σήμανση ως έτοιμο'}</button></div></article>`).join('');
+      document.querySelectorAll('[data-complete]').forEach(b => b.addEventListener('click', () => toggleComplete(Number(b.dataset.complete))));
+      const done = d.modules.filter((_,i) => isDone(currentLevel,i)).length;
+      const pct = Math.round(done / d.modules.length * 100);
+      document.getElementById('levelProgressText').textContent = `${pct}%`;
+      document.getElementById('levelProgressBar').style.width = `${pct}%`;
+    }
+    function toggleComplete(index) {
+      const key = lessonKey(currentLevel,index); const exists = state.completed.includes(key);
+      state.completed = exists ? state.completed.filter(x => x !== key) : [...state.completed, key]; save();
+      showToast(exists ? 'Το μάθημα επέστρεψε σε εκκρεμότητα.' : 'Μπράβο! Το μάθημα ολοκληρώθηκε.');
+      renderCourses(); renderFeatured(currentLevel); updateStats();
+    }
+
+    function resetQuiz() { quizIndex = 0; quizScore = 0; answered = false; renderQuiz(); }
+    function renderQuiz() {
+      const body = document.getElementById('quizBody');
+      if (quizIndex >= questions.length) {
+        const pct = Math.round(quizScore / questions.length * 100); state.bestScore = Math.max(state.bestScore || 0, pct); save(); updateStats();
+        body.innerHTML = `<p class="eyebrow">Ολοκληρώθηκε</p><h2 style="font-size:2.4rem">${pct >= 80 ? 'Kjempebra!' : pct >= 60 ? 'Bra jobbet!' : 'Fortsett å øve!'}</h2><p class="lead">Απάντησες σωστά σε ${quizScore} από ${questions.length} ερωτήσεις. Καλύτερο σκορ: ${state.bestScore}%.</p><div class="quiz-actions"><button class="btn btn-primary" id="restartQuiz">Ξανά από την αρχή</button></div>`;
+        document.getElementById('quizCounter').textContent = 'Τέλος εξάσκησης'; document.getElementById('quizProgress').style.width = '100%';
+        document.getElementById('restartQuiz').addEventListener('click', resetQuiz); return;
+      }
+      const item = questions[quizIndex]; answered = false;
+      document.getElementById('quizCounter').textContent = `Ερώτηση ${quizIndex+1} από ${questions.length}`;
+      document.getElementById('quizProgress').style.width = `${(quizIndex+1)/questions.length*100}%`;
+      body.innerHTML = `<span class="tag">${item.level}</span><p class="quiz-prompt" style="margin-top:20px">${item.prompt}</p><p class="quiz-question">${item.q}</p><div class="options">${item.options.map((o,i)=>`<button class="option" data-answer="${i}">${o}</button>`).join('')}</div><div class="feedback" id="feedback">Επίλεξε μία απάντηση.</div><div class="quiz-actions"><button class="btn btn-primary" id="nextQuestion" disabled>${quizIndex === questions.length-1 ? 'Δες το αποτέλεσμα' : 'Επόμενη ερώτηση →'}</button></div>`;
+      body.querySelectorAll('[data-answer]').forEach(b => b.addEventListener('click', () => answerQuestion(Number(b.dataset.answer))));
+      document.getElementById('nextQuestion').addEventListener('click', () => { quizIndex++; renderQuiz(); });
+    }
+    function answerQuestion(choice) {
+      if (answered) return; answered = true; const item = questions[quizIndex]; if (choice === item.answer) quizScore++;
+      document.querySelectorAll('[data-answer]').forEach((b,i) => { b.classList.add(i === item.answer ? 'correct' : (i === choice ? 'wrong' : '')); b.disabled = true; });
+      document.getElementById('feedback').innerHTML = choice === item.answer ? `<strong>Σωστά!</strong> ${item.note}` : `<strong>Όχι ακριβώς.</strong> ${item.note}`;
+      document.getElementById('nextQuestion').disabled = false;
+    }
+
+    function renderVocabulary() {
+      const q = document.getElementById('wordSearch').value.trim().toLocaleLowerCase('el');
+      const filtered = vocabulary.filter(w => (vocabLevel === 'all' || w.level === vocabLevel) && `${w.norwegian} ${w.greek} ${w.example}`.toLocaleLowerCase('el').includes(q));
+      document.getElementById('vocabGrid').innerHTML = filtered.length ? filtered.map(w => `<article class="word"><small>${w.level}</small><h3>${w.norwegian}</h3><p>${w.greek}</p><p class="example">“${w.example}”</p></article>`).join('') : '<div class="empty">Δεν βρέθηκε λέξη. Δοκίμασε διαφορετική αναζήτηση.</div>';
+    }
+    document.getElementById('wordSearch').addEventListener('input', renderVocabulary);
+    document.querySelectorAll('[data-vocab-level]').forEach(b => b.addEventListener('click', () => {
+      vocabLevel = b.dataset.vocabLevel; document.querySelectorAll('[data-vocab-level]').forEach(x => x.classList.toggle('active', x === b)); renderVocabulary();
+    }));
+
+    renderFeatured('A2'); renderCourses(); renderQuiz(); renderVocabulary(); updateStats();
+  </script>
+</body>
+</html>
