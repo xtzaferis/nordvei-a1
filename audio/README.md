@@ -24,13 +24,13 @@ The course expects MP3 files generated through the official Google Cloud Text-to
    node scripts/generate-google-tts.mjs
    ```
 
-The generator uses the supported Norwegian Bokmål voice `nb-NO-Wavenet-F` by default. To select another supported and licensed Google Cloud voice for the generation run:
+The generator uses the supported Norwegian Bokmål voice `nb-NO-Wavenet-F` by default. To select another supported Google Cloud voice for the generation run:
 
 ```powershell
 $env:NORDVEI_TTS_VOICE = "nb-NO-Wavenet-G"
 node scripts/generate-google-tts.mjs
 ```
 
-The script creates 35 tracks: 30 A1 unit dialogues and 5 general level-practice recordings. It also creates `provenance.json` next to the MP3 files. Commit that file with the generated audio so the source, voice, date, and applicable terms remain auditable.
+The script creates 40 tracks: 30 A1 unit dialogues, 5 level-practice recordings, and 5 reading-passage recordings. It also creates `provenance.json` next to the MP3 files. Commit that file with the generated audio so the source, voice, date, and applicable terms remain auditable.
 
 Never commit Google credentials, access tokens, API keys, or service-account JSON files.

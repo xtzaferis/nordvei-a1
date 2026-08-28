@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import os from "node:os";
 import path from "node:path";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -25,42 +26,108 @@ const generalTracks = [
   ["c1-listening.mp3", "Resonnementet er tilsynelatende overbevisende, men premissene tåler nærmere gransking."]
 ];
 
+const readingTracks = [
+  ["a1-reading.mp3", "Maja bor i Bergen. Hun jobber på et lite hotell. Hver morgen tar hun bussen til jobb. Etter jobb liker hun å gå en tur ved sjøen."],
+  ["a2-reading.mp3", "I går skulle Amir møte en venn på kafé. Bussen var forsinket, så han sendte en melding. Vennen ventet og bestilte kaffe til dem begge."],
+  ["b1-reading.mp3", "Flere norske bedrifter tilbyr nå fleksibel arbeidstid. Mange ansatte setter pris på friheten, men noen savner tydeligere grenser mellom arbeid og fritid."],
+  ["b2-reading.mp3", "Selv om digitaliseringen har gjort offentlige tjenester mer tilgjengelige, risikerer enkelte grupper å falle utenfor. Utfordringen er derfor ikke bare teknologisk, men også sosial."],
+  ["c1-reading.mp3", "Debatten preges ofte av en kunstig motsetning mellom økonomisk vekst og miljøhensyn. En mer fruktbar tilnærming ville være å undersøke hvilke former for verdiskaping som faktisk kan forenes med langsiktig bærekraft."]
+];
+
 const a1Tracks = globalThis.A1_COURSE.units.map((unit) => [
   `a1-${unit.id}.mp3`,
   unit.dialogue.map((line) => line[1]).join(" ")
 ]);
-const tracks = [...generalTracks, ...a1Tracks];
+const tracks = [...generalTracks, ...readingTracks, ...a1Tracks];
 
 if (process.argv.includes("--dry-run")) {
   process.stdout.write(`Validated ${tracks.length} tracks for ${voice.name}. No API request was sent.\n`);
   process.exit(0);
 }
 
-function getAccessToken() {
+function getAdcPath() {
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    return process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  }
+
+  return process.platform === "win32"
+    ? path.join(process.env.APPDATA || path.join(os.homedir(), "AppData", "Roaming"), "gcloud", "application_default_credentials.json")
+    : path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), ".config"), "gcloud", "application_default_credentials.json");
+}
+
+async function getAccessTokenFromAdc() {
+  const credentials = JSON.parse(await readFile(getAdcPath(), "utf8"));
+  if (credentials.type !== "authorized_user") {
+    throw new Error(`Unsupported ADC credential type: ${credentials.type || "unknown"}`);
+  }
+
+  const response = await fetch(credentials.token_uri || "https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: credentials.client_id,
+      client_secret: credentials.client_secret,
+      refresh_token: credentials.refresh_token,
+      grant_type: "refresh_token"
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`ADC token refresh failed: ${response.status} ${await response.text()}`);
+  }
+
+  const result = await response.json();
+  if (!result.access_token) {
+    throw new Error("ADC token refresh returned no access token.");
+  }
+
+  return {
+    accessToken: result.access_token,
+    quotaProject: credentials.quota_project_id
+  };
+}
+
+async function getGoogleAuth() {
   if (process.env.GOOGLE_CLOUD_ACCESS_TOKEN) {
-    return process.env.GOOGLE_CLOUD_ACCESS_TOKEN.trim();
+    return {
+      accessToken: process.env.GOOGLE_CLOUD_ACCESS_TOKEN.trim(),
+      quotaProject: process.env.GOOGLE_CLOUD_QUOTA_PROJECT || process.env.GOOGLE_CLOUD_PROJECT
+    };
   }
 
   try {
-    return execFileSync(
-      process.platform === "win32" ? "gcloud.cmd" : "gcloud",
-      ["auth", "application-default", "print-access-token"],
-      { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }
-    ).trim();
-  } catch {
-    throw new Error(
-      "No Google Cloud access token is available. Run `gcloud auth application-default login` or set GOOGLE_CLOUD_ACCESS_TOKEN."
-    );
+    return await getAccessTokenFromAdc();
+  } catch (adcError) {
+    try {
+      const command = process.platform === "win32" ? "gcloud.cmd" : "gcloud";
+      return {
+        accessToken: execFileSync(command, ["auth", "application-default", "print-access-token"], {
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+          shell: process.platform === "win32"
+        }).trim(),
+        quotaProject: process.env.GOOGLE_CLOUD_QUOTA_PROJECT || process.env.GOOGLE_CLOUD_PROJECT
+      };
+    } catch (gcloudError) {
+      throw new Error(
+        `No Google Cloud access token is available. ADC error: ${adcError.message}. gcloud error: ${gcloudError.message}`
+      );
+    }
   }
 }
 
-async function synthesize(fileName, text, accessToken) {
+async function synthesize(fileName, text, auth) {
+  const headers = {
+    Authorization: `Bearer ${auth.accessToken}`,
+    "Content-Type": "application/json"
+  };
+  if (auth.quotaProject) {
+    headers["x-goog-user-project"] = auth.quotaProject;
+  }
+
   const response = await fetch(endpoint, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json"
-    },
+    headers,
     body: JSON.stringify({
       input: { text },
       voice,
@@ -83,10 +150,10 @@ async function synthesize(fileName, text, accessToken) {
 }
 
 await mkdir(audioDirectory, { recursive: true });
-const accessToken = getAccessToken();
+const auth = await getGoogleAuth();
 
 for (const [fileName, text] of tracks) {
-  await synthesize(fileName, text, accessToken);
+  await synthesize(fileName, text, auth);
 }
 
 const provenance = {
@@ -106,4 +173,4 @@ await writeFile(
   `${JSON.stringify(provenance, null, 2)}\n`,
   "utf8"
 );
-process.stdout.write(`Generated ${tracks.length} licensed-project audio files and provenance.json\n`);
+process.stdout.write(`Generated ${tracks.length} synthetic audio files and provenance.json\n`);
