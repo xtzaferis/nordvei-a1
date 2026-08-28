@@ -23,4 +23,4 @@ When a generated MP3 is unavailable, the site can request a Norwegian speech-syn
 
 ## Learner microphone recordings
 
-Speaking exercises use the browser's MediaRecorder capability after the learner grants microphone permission. Recordings are held temporarily in browser memory so the learner can listen and record again. Nordvei does not upload or permanently store these recordings, and they are discarded when the exercise is reset or the page is refreshed or closed.
+Speaking exercises use the browser's MediaRecorder capability after the learner grants microphone permission. During one speaking exercise, Nordvei reuses that permission and disables microphone capture between takes so mobile browsers do not need to ask again for every retry. The microphone stream is released when the learner changes exercises or leaves the page. Recordings are held temporarily in browser memory so the learner can listen and record again. Nordvei does not upload or permanently store them, and they are discarded when the exercise is reset or the page is refreshed or closed.
