@@ -20,3 +20,7 @@ Google Cloud and Text-to-Speech are Google services and trademarks. Their mentio
 ## Device voice fallback
 
 When a generated MP3 is unavailable, the site can request a Norwegian speech-synthesis voice installed in the learner's browser or operating system. That fallback is played locally and is not distributed as part of this repository.
+
+## Learner microphone recordings
+
+Speaking exercises use the browser's MediaRecorder capability after the learner grants microphone permission. Recordings are held temporarily in browser memory so the learner can listen and record again. Nordvei does not upload or permanently store these recordings, and they are discarded when the exercise is reset or the page is refreshed or closed.
