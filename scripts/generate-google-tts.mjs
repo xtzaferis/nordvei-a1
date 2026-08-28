@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import os from "node:os";
@@ -17,6 +18,7 @@ globalThis.window = globalThis;
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-course.js")).href);
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-units-11-20.js")).href);
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-units-21-30.js")).href);
+await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-mastery.js")).href);
 
 const generalTracks = [
   ["a1-listening.mp3", "Hei, jeg heter Maja. Hyggelig å møte deg!"],
@@ -38,10 +40,39 @@ const a1Tracks = globalThis.A1_COURSE.units.map((unit) => [
   `a1-${unit.id}.mp3`,
   unit.dialogue.map((line) => line[1]).join(" ")
 ]);
-const tracks = [...generalTracks, ...readingTracks, ...a1Tracks];
+const joinSpeechExamples = (examples) => examples
+  .map((example) => {
+    const text = example.trim();
+    return /[.!?…]$/u.test(text) ? text : `${text}.`;
+  })
+  .join(" ");
+const masteryTracks = globalThis.A1_MASTERY.units.flatMap((unit) => [
+  [`a1-${unit.id}-reading.mp3`, unit.reading.text],
+  [`a1-${unit.id}-pronunciation.mp3`, joinSpeechExamples(unit.pronunciation.examples)],
+  [`a1-${unit.id}-dictation.mp3`, unit.dictation.text]
+]);
+const pronunciationExampleTracks = globalThis.A1_MASTERY.units.flatMap((unit) =>
+  unit.pronunciation.examples.map((example, index) => [
+    `a1-${unit.id}-pronunciation-${index + 1}.mp3`,
+    example.trim()
+  ])
+);
+const vocabularyItems = [...new Map(
+  globalThis.A1_COURSE.units
+    .flatMap((unit) => unit.vocabulary)
+    .map(([word, , example]) => [word.toLocaleLowerCase("nb-NO"), { word, example }])
+).values()];
+const vocabularyTracks = vocabularyItems.map(({ word, example }, index) => [
+  `a1-vocab-${String(index + 1).padStart(3, "0")}.mp3`,
+  `${word}. ${example}`
+]);
+const tracks = [...generalTracks, ...readingTracks, ...a1Tracks, ...masteryTracks, ...pronunciationExampleTracks, ...vocabularyTracks];
+const generationTracks = process.argv.includes("--pronunciation-only")
+  ? tracks.filter(([fileName]) => fileName.includes("-pronunciation"))
+  : tracks;
 
 if (process.argv.includes("--dry-run")) {
-  process.stdout.write(`Validated ${tracks.length} tracks for ${voice.name}. No API request was sent.\n`);
+  process.stdout.write(`Validated ${tracks.length} tracks for ${voice.name}; ${generationTracks.length} selected. No API request was sent.\n`);
   process.exit(0);
 }
 
@@ -151,9 +182,17 @@ async function synthesize(fileName, text, auth) {
 
 await mkdir(audioDirectory, { recursive: true });
 const auth = await getGoogleAuth();
+const onlyMissing = process.argv.includes("--only-missing");
+let generatedCount = 0;
+let skippedCount = 0;
 
-for (const [fileName, text] of tracks) {
+for (const [fileName, text] of generationTracks) {
+  if (onlyMissing && existsSync(path.join(audioDirectory, fileName))) {
+    skippedCount++;
+    continue;
+  }
   await synthesize(fileName, text, auth);
+  generatedCount++;
 }
 
 const provenance = {
@@ -163,6 +202,14 @@ const provenance = {
   voiceName: voice.name,
   generatedAt: new Date().toISOString(),
   trackCount: tracks.length,
+  trackBreakdown: {
+    generalPractice: generalTracks.length,
+    levelReadings: readingTracks.length,
+    a1Dialogues: a1Tracks.length,
+    a1MasteryActivities: masteryTracks.length,
+    a1PronunciationExamples: pronunciationExampleTracks.length,
+    a1Vocabulary: vocabularyTracks.length
+  },
   generator: "scripts/generate-google-tts.mjs",
   terms: "https://cloud.google.com/terms",
   documentation: "https://docs.cloud.google.com/text-to-speech/docs/basics"
@@ -173,4 +220,4 @@ await writeFile(
   `${JSON.stringify(provenance, null, 2)}\n`,
   "utf8"
 );
-process.stdout.write(`Generated ${tracks.length} synthetic audio files and provenance.json\n`);
+process.stdout.write(`Audio build complete: ${generatedCount} generated, ${skippedCount} existing tracks kept, ${generationTracks.length} selected, ${tracks.length} course tracks total.\n`);

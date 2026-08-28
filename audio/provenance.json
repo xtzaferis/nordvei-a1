@@ -3,8 +3,16 @@
   "serviceEndpoint": "https://texttospeech.googleapis.com/v1/text:synthesize",
   "languageCode": "nb-NO",
   "voiceName": "nb-NO-Wavenet-F",
-  "generatedAt": "2026-08-28T11:49:27.402Z",
-  "trackCount": 40,
+  "generatedAt": "2026-08-28T15:56:44.477Z",
+  "trackCount": 449,
+  "trackBreakdown": {
+    "generalPractice": 5,
+    "levelReadings": 5,
+    "a1Dialogues": 30,
+    "a1MasteryActivities": 90,
+    "a1PronunciationExamples": 90,
+    "a1Vocabulary": 229
+  },
   "generator": "scripts/generate-google-tts.mjs",
   "terms": "https://cloud.google.com/terms",
   "documentation": "https://docs.cloud.google.com/text-to-speech/docs/basics"
