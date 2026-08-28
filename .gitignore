@@ -1,0 +1,5 @@
+.env
+.env.*
+service-account*.json
+google-credentials*.json
+credentials*.json
