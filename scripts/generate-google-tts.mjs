@@ -21,19 +21,11 @@ await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-units-2
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-mastery.js")).href);
 
 const generalTracks = [
-  ["a1-listening.mp3", "Hei, jeg heter Maja. Hyggelig å møte deg!"],
-  ["a2-listening.mp3", "Bussen er dessverre forsinket i dag."],
-  ["b1-listening.mp3", "Fleksibilitet er en fordel, men det krever gode rutiner."],
-  ["b2-listening.mp3", "Utviklingen gir nye muligheter, samtidig som den skaper betydelige utfordringer."],
-  ["c1-listening.mp3", "Resonnementet er tilsynelatende overbevisende, men premissene tåler nærmere gransking."]
+  ["a1-listening.mp3", "Hei, jeg heter Maja. Hyggelig å møte deg!"]
 ];
 
 const readingTracks = [
-  ["a1-reading.mp3", "Maja bor i Bergen. Hun jobber på et lite hotell. Hver morgen tar hun bussen til jobb. Etter jobb liker hun å gå en tur ved sjøen."],
-  ["a2-reading.mp3", "I går skulle Amir møte en venn på kafé. Bussen var forsinket, så han sendte en melding. Vennen ventet og bestilte kaffe til dem begge."],
-  ["b1-reading.mp3", "Flere norske bedrifter tilbyr nå fleksibel arbeidstid. Mange ansatte setter pris på friheten, men noen savner tydeligere grenser mellom arbeid og fritid."],
-  ["b2-reading.mp3", "Selv om digitaliseringen har gjort offentlige tjenester mer tilgjengelige, risikerer enkelte grupper å falle utenfor. Utfordringen er derfor ikke bare teknologisk, men også sosial."],
-  ["c1-reading.mp3", "Debatten preges ofte av en kunstig motsetning mellom økonomisk vekst og miljøhensyn. En mer fruktbar tilnærming ville være å undersøke hvilke former for verdiskaping som faktisk kan forenes med langsiktig bærekraft."]
+  ["a1-reading.mp3", "Maja bor i Bergen. Hun jobber på et lite hotell. Hver morgen tar hun bussen til jobb. Etter jobb liker hun å gå en tur ved sjøen."]
 ];
 
 const a1Tracks = globalThis.A1_COURSE.units.map((unit) => [
