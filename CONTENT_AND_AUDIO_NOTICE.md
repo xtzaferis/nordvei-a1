@@ -6,7 +6,7 @@ The Norwegian lesson text, dialogues, exercises, Greek translations, and interfa
 
 ## Synthetic audio
 
-The committed MP3 files are synthetic speech generated from the project's Norwegian lesson text through the official Google Cloud Text-to-Speech API. They are not recordings copied from native speakers, consumer websites, videos, podcasts, or unofficial text-to-speech endpoints.
+The committed MP3 files are synthetic speech generated from the project's Norwegian lesson text through the official Google Cloud Text-to-Speech API. General instructional material uses a male Norwegian voice, while dialogues use separate documented female and male Norwegian voices. They are not recordings copied from native speakers, consumer websites, videos, podcasts, or unofficial text-to-speech endpoints.
 
 Google documents that audio files created with Cloud Text-to-Speech may be used in applications and media, subject to the Google Cloud Platform Terms of Service and applicable law:
 

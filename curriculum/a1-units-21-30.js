@@ -1,7 +1,7 @@
 (function () {
   const makeUnit = (id, title, subtitle, minutes, goal, vocabulary, dialogue, grammar, quiz, speaking, writing) => ({
     id, title, subtitle, minutes, goal, vocabulary, dialogue, grammar, quiz, speaking, writing,
-    audio: `audio/a1-${id}.mp3`
+    audio: `audio/a1-${id}.mp3?v=3`
   });
 
   window.A1_COURSE.units.push(

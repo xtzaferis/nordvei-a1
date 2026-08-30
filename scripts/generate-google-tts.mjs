@@ -11,13 +11,19 @@ const audioDirectory = path.join(projectDirectory, "audio");
 const endpoint = "https://texttospeech.googleapis.com/v1/text:synthesize";
 const voice = {
   languageCode: "nb-NO",
-  name: process.env.NORDVEI_TTS_VOICE || "nb-NO-Wavenet-F"
+  name: process.env.NORDVEI_TTS_VOICE || "nb-NO-Wavenet-G"
+};
+const dialogueVoices = {
+  female: process.env.NORDVEI_TTS_FEMALE_VOICE || "nb-NO-Wavenet-F",
+  male: process.env.NORDVEI_TTS_MALE_VOICE || "nb-NO-Wavenet-G"
 };
 
 globalThis.window = globalThis;
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-course.js")).href);
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-units-11-20.js")).href);
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-units-21-30.js")).href);
+await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-dialogue-voices.js")).href);
+await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-language-support.js")).href);
 await import(pathToFileURL(path.join(projectDirectory, "curriculum", "a1-mastery.js")).href);
 
 const generalTracks = [
@@ -28,9 +34,26 @@ const readingTracks = [
   ["a1-reading.mp3", "Maja bor i Bergen. Hun jobber på et lite hotell. Hver morgen tar hun bussen til jobb. Etter jobb liker hun å gå en tur ved sjøen."]
 ];
 
+const escapeSsml = (text) => text
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&apos;");
+const buildDialogueSsml = (unit) => {
+  const genders = globalThis.A1_DIALOGUE_GENDERS[unit.id];
+  const turns = unit.dialogue.map(([speaker, norwegian]) => {
+    const gender = genders?.[speaker];
+    if (!dialogueVoices[gender]) {
+      throw new Error(`Missing dialogue gender for ${unit.id} / ${speaker}.`);
+    }
+    return `<voice name="${dialogueVoices[gender]}">${escapeSsml(norwegian)}</voice>`;
+  });
+  return `<speak>${turns.join('<break time="500ms"/>')}</speak>`;
+};
 const a1Tracks = globalThis.A1_COURSE.units.map((unit) => [
   `a1-${unit.id}.mp3`,
-  unit.dialogue.map((line) => line[1]).join(" ")
+  { ssml: buildDialogueSsml(unit), voice }
 ]);
 const joinSpeechExamples = (examples) => examples
   .map((example) => {
@@ -49,6 +72,12 @@ const pronunciationExampleTracks = globalThis.A1_MASTERY.units.flatMap((unit) =>
     example.trim()
   ])
 );
+const grammarTracks = globalThis.A1_COURSE.units.flatMap((unit) =>
+  unit.grammar.examples.map((example, index) => [
+    `a1-${unit.id}-grammar-${index + 1}.mp3`,
+    example.trim()
+  ])
+);
 const vocabularyItems = [...new Map(
   globalThis.A1_COURSE.units
     .flatMap((unit) => unit.vocabulary)
@@ -58,13 +87,20 @@ const vocabularyTracks = vocabularyItems.map(({ word, example }, index) => [
   `a1-vocab-${String(index + 1).padStart(3, "0")}.mp3`,
   `${word}. ${example}`
 ]);
-const tracks = [...generalTracks, ...readingTracks, ...a1Tracks, ...masteryTracks, ...pronunciationExampleTracks, ...vocabularyTracks];
+const tracks = [...generalTracks, ...readingTracks, ...a1Tracks, ...masteryTracks, ...pronunciationExampleTracks, ...grammarTracks, ...vocabularyTracks];
+const dialogueFileNames = new Set(a1Tracks.map(([fileName]) => fileName));
 const generationTracks = process.argv.includes("--pronunciation-only")
   ? tracks.filter(([fileName]) => fileName.includes("-pronunciation"))
-  : tracks;
+  : process.argv.includes("--dialogues-only")
+    ? a1Tracks
+    : process.argv.includes("--grammar-only")
+      ? grammarTracks
+      : process.argv.includes("--non-dialogues-only")
+        ? tracks.filter(([fileName]) => !dialogueFileNames.has(fileName))
+        : tracks;
 
 if (process.argv.includes("--dry-run")) {
-  process.stdout.write(`Validated ${tracks.length} tracks for ${voice.name}; ${generationTracks.length} selected. No API request was sent.\n`);
+  process.stdout.write(`Validated ${tracks.length} tracks for ${voice.name}, ${dialogueVoices.female}, ${dialogueVoices.male}; ${generationTracks.length} selected. No API request was sent.\n`);
   process.exit(0);
 }
 
@@ -139,7 +175,7 @@ async function getGoogleAuth() {
   }
 }
 
-async function synthesize(fileName, text, auth) {
+async function synthesize(fileName, content, auth) {
   const headers = {
     Authorization: `Bearer ${auth.accessToken}`,
     "Content-Type": "application/json"
@@ -152,8 +188,8 @@ async function synthesize(fileName, text, auth) {
     method: "POST",
     headers,
     body: JSON.stringify({
-      input: { text },
-      voice,
+      input: typeof content === "string" ? { text: content } : { ssml: content.ssml },
+      voice: typeof content === "string" ? voice : content.voice,
       audioConfig: { audioEncoding: "MP3", speakingRate: 0.92, pitch: 0 }
     })
   });
@@ -178,12 +214,12 @@ const onlyMissing = process.argv.includes("--only-missing");
 let generatedCount = 0;
 let skippedCount = 0;
 
-for (const [fileName, text] of generationTracks) {
+for (const [fileName, content] of generationTracks) {
   if (onlyMissing && existsSync(path.join(audioDirectory, fileName))) {
     skippedCount++;
     continue;
   }
-  await synthesize(fileName, text, auth);
+  await synthesize(fileName, content, auth);
   generatedCount++;
 }
 
@@ -192,6 +228,7 @@ const provenance = {
   serviceEndpoint: endpoint,
   languageCode: voice.languageCode,
   voiceName: voice.name,
+  dialogueVoiceNames: dialogueVoices,
   generatedAt: new Date().toISOString(),
   trackCount: tracks.length,
   trackBreakdown: {
@@ -200,6 +237,7 @@ const provenance = {
     a1Dialogues: a1Tracks.length,
     a1MasteryActivities: masteryTracks.length,
     a1PronunciationExamples: pronunciationExampleTracks.length,
+    a1GrammarExamples: grammarTracks.length,
     a1Vocabulary: vocabularyTracks.length
   },
   generator: "scripts/generate-google-tts.mjs",

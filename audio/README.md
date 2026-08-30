@@ -36,14 +36,32 @@ To regenerate only the 30 pronunciation-lab recordings after changing their phra
 node scripts/generate-google-tts.mjs --pronunciation-only
 ```
 
-The generator uses the supported Norwegian Bokmål voice `nb-NO-Wavenet-F` by default. To select another supported Google Cloud voice for the generation run:
+To regenerate the 30 dialogues with separate female and male Norwegian voices:
 
 ```powershell
-$env:NORDVEI_TTS_VOICE = "nb-NO-Wavenet-G"
+node scripts/generate-google-tts.mjs --dialogues-only
+```
+
+To generate only the 90 individual grammar examples:
+
+```powershell
+node scripts/generate-google-tts.mjs --grammar-only
+```
+
+To regenerate all instructional audio except the multi-speaker dialogues:
+
+```powershell
+node scripts/generate-google-tts.mjs --non-dialogues-only
+```
+
+The generator uses the supported male Norwegian Bokmål voice `nb-NO-Wavenet-G` for general instructional audio. Dialogues use `nb-NO-Wavenet-F` for female speakers and `nb-NO-Wavenet-G` for male speakers. To select another supported main voice for a generation run:
+
+```powershell
+$env:NORDVEI_TTS_VOICE = "nb-NO-Wavenet-F"
 node scripts/generate-google-tts.mjs
 ```
 
-The script creates 449 tracks: 30 A1 unit dialogues, 5 level-practice recordings, 5 level reading passages, 90 A1 mastery recordings covering graded reading, pronunciation, and dictation, 90 individual pronunciation-example recordings, and 229 A1 vocabulary recordings. Each vocabulary recording reads the complete word or expression and then its example sentence. The script also creates `provenance.json` next to the MP3 files. Commit that file with the generated audio so the source, voice, date, and applicable terms remain auditable.
+The script defines 531 tracks: general practice and reading, 30 A1 unit dialogues, 90 A1 mastery recordings covering graded reading, pronunciation and dictation, 90 individual pronunciation examples, 90 individual grammar examples, and 229 A1 vocabulary recordings. Each vocabulary recording reads the complete word or expression and then its example sentence. The script also creates `provenance.json` next to the MP3 files. Commit that file with the generated audio so the source, voices, date, and applicable terms remain auditable.
 
 The course player uses `0.85×` as the default beginner speed for instructional audio. Where a speed selector is available, learners can also choose `0.7×` for careful listening or `1×` for natural-speed practice. Recorded learner responses always play at their original `1×` speed.
 

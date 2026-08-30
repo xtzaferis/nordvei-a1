@@ -2,10 +2,10 @@
   const unit = (id, canDo, pronunciation, reading, dictation, modelAnswer, culture) => ({
     id, canDo, pronunciation, reading, dictation, modelAnswer, culture,
     audio: {
-      reading: `audio/a1-${id}-reading.mp3`,
-      pronunciation: `audio/a1-${id}-pronunciation.mp3?v=2`,
-      pronunciationExamples: pronunciation.examples.map((_, index) => `audio/a1-${id}-pronunciation-${index + 1}.mp3?v=1`),
-      dictation: `audio/a1-${id}-dictation.mp3`
+      reading: `audio/a1-${id}-reading.mp3?v=3`,
+      pronunciation: `audio/a1-${id}-pronunciation.mp3?v=3`,
+      pronunciationExamples: pronunciation.examples.map((_, index) => `audio/a1-${id}-pronunciation-${index + 1}.mp3?v=3`),
+      dictation: `audio/a1-${id}-dictation.mp3?v=3`
     }
   });
 

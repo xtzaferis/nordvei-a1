@@ -2,15 +2,20 @@
   "provider": "Google Cloud Text-to-Speech",
   "serviceEndpoint": "https://texttospeech.googleapis.com/v1/text:synthesize",
   "languageCode": "nb-NO",
-  "voiceName": "nb-NO-Wavenet-F",
-  "generatedAt": "2026-08-28T15:56:44.477Z",
-  "trackCount": 441,
+  "voiceName": "nb-NO-Wavenet-G",
+  "dialogueVoiceNames": {
+    "female": "nb-NO-Wavenet-F",
+    "male": "nb-NO-Wavenet-G"
+  },
+  "generatedAt": "2026-08-30T14:25:22.116Z",
+  "trackCount": 531,
   "trackBreakdown": {
     "generalPractice": 1,
     "levelReadings": 1,
     "a1Dialogues": 30,
     "a1MasteryActivities": 90,
     "a1PronunciationExamples": 90,
+    "a1GrammarExamples": 90,
     "a1Vocabulary": 229
   },
   "generator": "scripts/generate-google-tts.mjs",
